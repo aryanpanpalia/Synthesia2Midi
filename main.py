@@ -35,14 +35,14 @@ def show_frames(frame_dir, n_f):
 if __name__ == '__main__':
     PROJECT_DIR = os.getcwd()
 
-    VIDEO_NAME = 'Fur Elise'
-    VIDEO_URL = 'https://www.youtube.com/watch?v=WvWuco54FHg'
+    VIDEO_NAME = 'Ultra Instinct'
+    VIDEO_URL = 'https://www.youtube.com/watch?v=hfwV-sgmO20'
 
     num_frames, fps = youtube2frames.get_frames(video_url=VIDEO_URL, video_name=VIDEO_NAME)
 
-    show_frames(f"{PROJECT_DIR}/{VIDEO_NAME}/frames", num_frames)
-
     white_key_height, black_key_height, clear_frame_number = get_frame_data.get_data(VIDEO_NAME)
+
+    show_frames(f"{PROJECT_DIR}/{VIDEO_NAME}/frames", num_frames)
 
     read_height = int(input("Enter the read height: "))
     left_hand_color = json.loads(input("Enter the left hand note's color in [R, G, B]: "))
@@ -60,7 +60,7 @@ if __name__ == '__main__':
 
     matrix2csv.matrix_to_csv(left_hand, right_hand, VIDEO_NAME, fps)
 
-    # Parse the CSV into a MIDI file, then save the parsed MIDI file
+    # Parse the CSVs into a MIDI files, then save the parsed MIDI files
     with open(f"{PROJECT_DIR}/{VIDEO_NAME}/{VIDEO_NAME}.mid", "wb") as output_file:
         midi_object = pm.csv_to_midi(f'{PROJECT_DIR}/{VIDEO_NAME}/csvs/{VIDEO_NAME}.csv')
         midi_writer = pm.FileWriter(output_file)

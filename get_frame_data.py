@@ -53,8 +53,10 @@ def get_data(song_name):
 
             row_num -= 1
 
-        white_rows.append(white_row)
-        black_rows.append(black_row)
+        if white_row != -1:
+            white_rows.append(white_row)
+        if black_row != -1:
+            black_rows.append(black_row)
         if is_clear:
             clear_frames.append(frame_num)
 
