@@ -15,7 +15,6 @@ def get_data(song_name):
     white_rows = []
     black_rows = []
     clear_frames = []
-    colored_pixels = []
 
     for frame_num in trange(interval, number_of_frames, interval):
         image = cv2.imread(f"{frame_dir}/frame_{frame_num}.jpg")
@@ -56,11 +55,6 @@ def get_data(song_name):
         black_rows.append(black_row)
         if is_clear:
             clear_frames.append(frame_num)
-        else:
-            row = image[black_row - 2]
-            for pixel in row:
-                if is_colored(pixel):
-                    colored_pixels.append(list(pixel))
 
     white_row_final = int(sum(white_rows) / len(white_rows)) - 1
     black_row_final = int(sum(black_rows) / len(black_rows)) - 1
