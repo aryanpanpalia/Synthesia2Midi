@@ -56,7 +56,6 @@ def get_frames(video_url, video_name=None):
     video = video.streams.get_by_itag(tag)
 
     video.download(output_path=f'./{video_name}/', filename=video_name)
-    print("\n")
 
     fe = FrameExtractor(f'./{video_name}/' + video_name + '.mp4')
     fe.extract_frames(dest_path=f'./{video_name}/frames')

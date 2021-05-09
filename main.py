@@ -60,10 +60,18 @@ if __name__ == '__main__':
 
     matrix2csv.matrix_to_csv(left_hand, right_hand, VIDEO_NAME, fps)
 
-    # Parse the CSV into a MIDI file
-    midi_object = pm.csv_to_midi(f'{PROJECT_DIR}/{VIDEO_NAME}/csvs/{VIDEO_NAME}.csv')
-
-    # Save the parsed MIDI file to disk
+    # Parse the CSV into a MIDI file, then save the parsed MIDI file
     with open(f"{PROJECT_DIR}/{VIDEO_NAME}/{VIDEO_NAME}.mid", "wb") as output_file:
+        midi_object = pm.csv_to_midi(f'{PROJECT_DIR}/{VIDEO_NAME}/csvs/{VIDEO_NAME}.csv')
+        midi_writer = pm.FileWriter(output_file)
+        midi_writer.write(midi_object)
+
+    with open(f"{PROJECT_DIR}/{VIDEO_NAME}/{VIDEO_NAME}_rh.mid", "wb") as output_file:
+        midi_object = pm.csv_to_midi(f'{PROJECT_DIR}/{VIDEO_NAME}/csvs/{VIDEO_NAME}_rh.csv')
+        midi_writer = pm.FileWriter(output_file)
+        midi_writer.write(midi_object)
+
+    with open(f"{PROJECT_DIR}/{VIDEO_NAME}/{VIDEO_NAME}_lh.mid", "wb") as output_file:
+        midi_object = pm.csv_to_midi(f'{PROJECT_DIR}/{VIDEO_NAME}/csvs/{VIDEO_NAME}_lh.csv')
         midi_writer = pm.FileWriter(output_file)
         midi_writer.write(midi_object)
