@@ -16,9 +16,8 @@ def process_frame(f2n, f_dir, f_num, lkn):
     return lr, rr
 
 
-def get_matrix(frame_dir, clear_frame, black_key_height, white_key_height,
-               read_height, left_hand_color, right_hand_color,
-               note_gap_length=None):
+def get_matrix(frame_dir, clear_frame, black_key_height, white_key_height, read_height,
+               left_hand_color, right_hand_color, note_gap_length=3):
     """
     :param frame_dir: the directory the frames are in
     :param clear_frame: a frame that has no notes colored/pressed/obstructed
@@ -31,10 +30,7 @@ def get_matrix(frame_dir, clear_frame, black_key_height, white_key_height,
     :return: array which row 0 is time 0 and row n is time n. column 0 is first note and column n is note n
     """
 
-    if note_gap_length is None:
-        p2n_object = Pixel2Note(f"{frame_dir}/{clear_frame}", black_key_height, white_key_height)
-    else:
-        p2n_object = Pixel2Note(f"{frame_dir}/{clear_frame}", black_key_height, white_key_height, note_gap_length)
+    p2n_object = Pixel2Note(f"{frame_dir}/{clear_frame}", black_key_height, white_key_height, note_gap_length)
 
     p2n_dict = p2n_object.get_pixel_to_note()
     f2n = Frame2Notes(p2n_object, read_height, left_hand_color, right_hand_color)

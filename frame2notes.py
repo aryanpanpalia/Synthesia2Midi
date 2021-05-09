@@ -68,15 +68,7 @@ class Frame2Notes:
         img_len = img_row.shape[0]
 
         # makes information concise. no note is 0, left hand is 1, and right hand is 2.
-        # relevant_part_of_img = [self.get_hand(img_row[i]) for i in range(img_len)]
-        # relevant_part_of_img_prime = list(map(self.get_hand, img_row))
-
-        relevant_part_of_img = np.empty(shape=img_len, dtype=np.int8)
-        for i in range(img_len):
-            relevant_part_of_img[i] = self.get_hand(img_row[i])
-
-        # debugging
-        # print({i: relevant_part_of_img[i] for i in range(len(relevant_part_of_img))})
+        relevant_part_of_img = [self.get_hand(img_row[i]) for i in range(img_len)]
 
         note_start = 0
         # go through the relevant part of the image
@@ -87,8 +79,6 @@ class Frame2Notes:
 
             # this means that at this position there is a note, while at the last position there wasn't, therefore this
             # is where a new note starts
-
-            # what if left hand and right hand pixels right next to each other? do thispixel != last pixel?
             if this_pixel != 0 and last_pixel == 0:
                 note_start = i
 
