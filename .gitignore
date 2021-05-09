@@ -123,3 +123,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Ignore songs/frames/midis (custom)
+*/frames
+*/csvs
+*/*.mp4
+*/*.mid
