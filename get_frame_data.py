@@ -1,3 +1,5 @@
+import sys
+
 import cv2
 import os
 from tqdm import trange
@@ -16,7 +18,7 @@ def get_data(song_name):
     black_rows = []
     clear_frames = []
 
-    for frame_num in trange(interval, number_of_frames, interval):
+    for frame_num in trange(interval, number_of_frames, interval, file=sys.stdout):
         image = cv2.imread(f"{frame_dir}/frame_{frame_num}.jpg")
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB).astype('int32')
 

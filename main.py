@@ -48,15 +48,15 @@ if __name__ == '__main__':
     left_hand_color = json.loads(input("Enter the left hand note's color in [R, G, B]: "))
     right_hand_color = json.loads(input("Enter the right hand note's color in [R, G, B]: "))
 
-    left_hand, right_hand = frames2matrix.get_matrix(
+    left_hand, right_hand = frames2matrix.Frames2MatrixConverter(
         f'{PROJECT_DIR}/{VIDEO_NAME}/frames',
-        clear_frame=f"frame_{clear_frame_number}.jpg",
+        clear_frame=f"{PROJECT_DIR}/{VIDEO_NAME}/frames/frame_{clear_frame_number}.jpg",
         black_key_height=black_key_height,
         white_key_height=white_key_height,
         read_height=read_height,
         left_hand_color=left_hand_color,
         right_hand_color=right_hand_color
-    )
+    ).convert()
 
     matrix2csv.matrix_to_csv(left_hand, right_hand, VIDEO_NAME, fps)
 
