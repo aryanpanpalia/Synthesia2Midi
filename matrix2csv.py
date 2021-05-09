@@ -54,19 +54,14 @@ def get_lines_from(hand, track_num, fps, tpms):
     for note_num in range(len(hand)):
         note = hand[note_num]
         for record in note:
-            if record[0] == 0:  # note off event
-                frame_num = record[1]
-                second = frame_num / fps
-                millisecond = second * 1000
-                tick = int(millisecond * tpms)
+            frame_num = record[1]
+            second = frame_num / fps
+            millisecond = second * 1000
+            tick = int(millisecond * tpms)
 
+            if record[0] == 0:  # note off event
                 lines.append(f"{track_num}, {tick}, Note_off_c, 0, {note_num + 9 + 12}, 0\n")
             elif record[0] == 1:  # note on event
-                frame_num = record[1]
-                second = frame_num / fps
-                millisecond = second * 1000
-                tick = millisecond * tpms
-
                 lines.append(f"{track_num}, {tick}, Note_on_c, 0, {note_num + 9 + 12}, 127\n")
 
     return lines
@@ -93,7 +88,7 @@ def write_lines(file_name, ls):
 def matrix_to_csv(l, r, song_name, fps):
     PPQ = 1800
     BPM = 100
-    TEMPO = 60000000 / BPM
+    TEMPO = int(60000000 / BPM)
     tpms = (BPM * PPQ) / 60000
 
     last_line = "0, 0, End_of_file\n"
