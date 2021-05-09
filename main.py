@@ -9,7 +9,6 @@ import py_midicsv as pm
 import frames2matrix
 import matrix2csv
 import youtube2frames
-import get_frame_data
 
 
 def show_image(path):
@@ -20,7 +19,7 @@ def show_image(path):
 
 
 def show_frames(frame_dir, n_f):
-    index = int(n_f / 64)
+    index = int(n_f / 128)
     while True:
         p = Process(target=show_image, args=(f"{frame_dir}/frame_{index}.jpg",))
         p.start()
@@ -29,21 +28,22 @@ def show_frames(frame_dir, n_f):
         if ans.lower() == 'y':
             return
         else:
-            index += int(n_f / 16)
+            index += int(n_f / 128)
 
 
 if __name__ == '__main__':
     PROJECT_DIR = os.getcwd()
 
-    VIDEO_NAME = 'Ultra Instinct'
-    VIDEO_URL = 'https://www.youtube.com/watch?v=hfwV-sgmO20'
+    VIDEO_NAME = 'Trishas Lullaby'
+    VIDEO_URL = 'https://www.youtube.com/watch?v=nWD3DK7msy4'
 
     num_frames, fps = youtube2frames.get_frames(video_url=VIDEO_URL, video_name=VIDEO_NAME)
 
-    white_key_height, black_key_height, clear_frame_number = get_frame_data.get_data(VIDEO_NAME)
-
     show_frames(f"{PROJECT_DIR}/{VIDEO_NAME}/frames", num_frames)
 
+    white_key_height = int(input("Enter the white key height: "))
+    black_key_height = int(input("Enter the black key height: "))
+    clear_frame_number = int(input("Enter a clear frame number: "))
     read_height = int(input("Enter the read height: "))
     left_hand_color = json.loads(input("Enter the left hand note's color in [R, G, B]: "))
     right_hand_color = json.loads(input("Enter the right hand note's color in [R, G, B]: "))
