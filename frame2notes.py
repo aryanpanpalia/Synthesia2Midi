@@ -5,11 +5,8 @@ import numpy as np
 
 class Frame2Notes:
 
-    def __init__(self, first_note, first_octave, pixel2note, read_height,
-                 left_hand_color, right_hand_color, background_color=[33, 33, 33]):
+    def __init__(self, pixel2note, read_height, left_hand_color, right_hand_color, background_color=[33, 33, 33]):
         """
-        :param first_note: First note of the keyboard. Used to orient everything
-        :param first_octave: Octave given to first note on keyboard. Used to orient everything
         :param pixel2note: a pixel_to_note object to get where notes are
         :param read_height: height on frame from which to read notes
         :param left_hand_color: colors of notes played by left hand. given in RGB as [red, green, blue]
@@ -17,16 +14,6 @@ class Frame2Notes:
         :param background_color: color of background. Given in RGB as [red, green, blue]
         """
 
-        self.NOTES = ["A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#",
-                      "A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#",
-                      "A", "Bb", "B", "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab",
-                      "A", "Bb", "B", "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab"]
-        first_index = self.NOTES.index(first_note)
-        self.NOTES = self.NOTES[first_index:first_index + 12]
-        self.NOTES.insert(0, None)
-
-        self.first_octave = first_octave
-        self.first_note = first_note
         self.pixel2note = pixel2note
         self.read_height = read_height
 
@@ -58,8 +45,6 @@ class Frame2Notes:
                                (color_lab[1] - self.right_hand_color_lab[1]) ** 2 + \
                                (color_lab[2] - self.right_hand_color_lab[2]) ** 2
 
-        # print(color_lab, dist_from_background, dist_from_left_hand, dist_from_right_hand, self.left_hand_color_lab, self.right_hand_color_lab)
-
         if dist_from_left_hand < dist_from_background and dist_from_left_hand < dist_from_right_hand:
             return 1
         elif dist_from_right_hand < dist_from_background and dist_from_right_hand < dist_from_left_hand:
@@ -67,10 +52,9 @@ class Frame2Notes:
         else:
             return 0
 
-    def get(self, frame, numbers_only=False):
+    def get(self, frame):
         """ takes in an image frame and returns the notes being played in it at the read height
         :param frame: the frame to read
-        :param numbers_only: whether to only return the number value of the note
         :return: the notes about to be played in the frame as a list. [left hand, right hand] with the hands being in
                  the form [note_number, note_letter, note_octave] with the note_number starting at 0
         """
@@ -123,18 +107,10 @@ class Frame2Notes:
                 if above_last_note == 0 or below_last_note == 0:
                     continue
 
-                if numbers_only:
-                    if mid_pixel == 1:
-                        left_hand_notes.append(note)
-                    elif mid_pixel == 2:
-                        right_hand_notes.append(note)
-                else:
-                    note_letter = self.NOTES[note % 12 + 1] if not note % 12 == 0 else self.first_note
-                    note_octave = note // 12 + self.first_octave
-                    if mid_pixel == 1:
-                        left_hand_notes.append([note, note_letter + str(note_octave)])
-                    elif mid_pixel == 2:
-                        right_hand_notes.append([note, note_letter + str(note_octave)])
+                if mid_pixel == 1:
+                    left_hand_notes.append(note)
+                elif mid_pixel == 2:
+                    right_hand_notes.append(note)
 
         notes = [left_hand_notes, right_hand_notes]
         return notes

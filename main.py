@@ -44,8 +44,6 @@ if __name__ == '__main__':
 
     white_key_height, black_key_height, clear_frame_number = get_frame_data.get_data(VIDEO_NAME)
 
-    first_note = input("Enter the first note's letter: ")  # automate-able
-    first_octave = int(input("Designate the value of the first octave: "))  # can be defaulted
     read_height = int(input("Enter the read height: "))
     left_hand_color = json.loads(input("Enter the left hand note's color in [R, G, B]: "))
     right_hand_color = json.loads(input("Enter the right hand note's color in [R, G, B]: "))
@@ -55,8 +53,6 @@ if __name__ == '__main__':
         clear_frame=f"frame_{clear_frame_number}.jpg",
         black_key_height=black_key_height,
         white_key_height=white_key_height,
-        first_note=first_note,
-        first_octave=first_octave,
         read_height=read_height,
         left_hand_color=left_hand_color,
         right_hand_color=right_hand_color

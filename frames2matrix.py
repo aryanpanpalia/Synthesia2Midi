@@ -10,22 +10,20 @@ from pixel2note import Pixel2Note
 
 
 def process_frame(f2n, f_dir, f_num, lkn):
-    notes = f2n.get(f_dir + f"/frame_{f_num}.jpg", numbers_only=True)
+    notes = f2n.get(f_dir + f"/frame_{f_num}.jpg")
     lr = [1 if i in notes[0] else 0 for i in range(lkn)]
     rr = [1 if i in notes[1] else 0 for i in range(lkn)]
     return lr, rr
 
 
 def get_matrix(frame_dir, clear_frame, black_key_height, white_key_height,
-               first_note, first_octave, read_height, left_hand_color, right_hand_color,
+               read_height, left_hand_color, right_hand_color,
                note_gap_length=None):
     """
     :param frame_dir: the directory the frames are in
     :param clear_frame: a frame that has no notes colored/pressed/obstructed
     :param black_key_height: height of black keys
     :param white_key_height: height where no black keys
-    :param first_note: first note that appears on keyboard
-    :param first_octave: the octave number designated to the first note
     :param read_height: the height from which to read notes
     :param left_hand_color: the color of the notes in the left hand
     :param right_hand_color: the color of the notes in the right hand
@@ -39,7 +37,7 @@ def get_matrix(frame_dir, clear_frame, black_key_height, white_key_height,
         p2n_object = Pixel2Note(f"{frame_dir}/{clear_frame}", black_key_height, white_key_height, note_gap_length)
 
     p2n_dict = p2n_object.get_pixel_to_note()
-    f2n = Frame2Notes(first_note, first_octave, p2n_object, read_height, left_hand_color, right_hand_color)
+    f2n = Frame2Notes(p2n_object, read_height, left_hand_color, right_hand_color)
 
     number_of_frames = len([name for name in os.listdir(frame_dir) if os.path.isfile(os.path.join(frame_dir, name))])
     last_key_number = list(p2n_dict.values())[-1]
