@@ -1,3 +1,5 @@
+import sys
+
 import cv2
 import os
 from tqdm import trange
@@ -15,9 +17,8 @@ def get_data(song_name):
     white_rows = []
     black_rows = []
     clear_frames = []
-    colored_pixels = []
 
-    for frame_num in trange(interval, number_of_frames, interval):
+    for frame_num in trange(interval, number_of_frames, interval, file=sys.stdout, desc="Frames Searched"):
         image = cv2.imread(f"{frame_dir}/frame_{frame_num}.jpg")
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB).astype('int32')
 
@@ -52,15 +53,12 @@ def get_data(song_name):
 
             row_num -= 1
 
-        white_rows.append(white_row)
-        black_rows.append(black_row)
+        if white_row != -1:
+            white_rows.append(white_row)
+        if black_row != -1:
+            black_rows.append(black_row)
         if is_clear:
             clear_frames.append(frame_num)
-        else:
-            row = image[black_row - 2]
-            for pixel in row:
-                if is_colored(pixel):
-                    colored_pixels.append(list(pixel))
 
     white_row_final = int(sum(white_rows) / len(white_rows)) - 1
     black_row_final = int(sum(black_rows) / len(black_rows)) - 1
