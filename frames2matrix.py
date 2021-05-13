@@ -180,6 +180,7 @@ class Frames2MatrixConverter:
 
             # this means that at this position there is a note, while at the last position there wasn't, therefore this
             # is where a new note starts
+            # TODO what if two of notes right next to each other? Account for that possibility.
             if this_pixel != 0 and last_pixel == 0:
                 note_start = i
 
