@@ -34,15 +34,14 @@ def show_frames(frame_dir, n_f):
 if __name__ == '__main__':
     PROJECT_DIR = os.getcwd()
 
-    VIDEO_NAME = 'G minor'
-    VIDEO_URL = 'https://www.youtube.com/watch?v=cTEFfWbOm0g'
+    VIDEO_NAME = 'Pirates'
+    VIDEO_URL = 'https://www.youtube.com/watch?v=tHQa6Fwu-II'
 
     num_frames, fps = youtube2frames.get_frames(video_url=VIDEO_URL, video_name=VIDEO_NAME)
 
     show_frames(f"{PROJECT_DIR}/{VIDEO_NAME}/frames", num_frames)
 
-    # TODO ask for white and black key color so can make better pixel2note and get frame data better
-
+    white_note_threshold = int(input("Enter the minimum pixel brightness that should correspond to a white note: "))
     white_key_height = int(input("Enter the white key height: "))
     black_key_height = int(input("Enter the black key height: "))
     clear_frame_number = int(input("Enter a clear frame number: "))
@@ -57,7 +56,8 @@ if __name__ == '__main__':
         white_key_height=white_key_height,
         read_height=read_height,
         left_hand_color=left_hand_color,
-        right_hand_color=right_hand_color
+        right_hand_color=right_hand_color,
+        white_note_threshold=white_note_threshold
     ).convert()
 
     matrix2csv.matrix_to_csv(left_hand, right_hand, VIDEO_NAME, fps)
