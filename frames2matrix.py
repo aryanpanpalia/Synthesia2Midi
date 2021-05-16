@@ -9,7 +9,8 @@ from tqdm import tqdm
 
 class Frames2MatrixConverter:
     def __init__(self, frame_dir, clear_frame, black_key_height, white_key_height, read_height,
-                 left_hand_color, right_hand_color, background_color=[33, 33, 33], note_gap_length=3):
+                 left_hand_color, right_hand_color, white_note_threshold,
+                 background_color=[33, 33, 33], note_gap_length=3):
         """
         :param frame_dir: the directory the frames are in
         :param clear_frame: a frame that has no notes colored/pressed/obstructed
@@ -18,12 +19,14 @@ class Frames2MatrixConverter:
         :param read_height: the height from which to read notes
         :param left_hand_color: the color of the notes in the left hand
         :param right_hand_color: the color of the notes in the right hand
+        :param white_note_threshold: the minimum pixel brightness that should correspond to a white note
         :param background_color: background color
         :param note_gap_length: maximum gap between white notes accounted for. If the gap is too large, notes can be
                                 skipped as they are perceived as being a note gap instead of an actual note. If the gap
                                 is too small, it will think of some note gaps as actual notes.
         """
 
+        self.white_note_threshold = white_note_threshold
         self.frame_dir = frame_dir
         self.clear_frame = cv2.imread(clear_frame, cv2.IMREAD_GRAYSCALE)
         self.black_key_height = black_key_height
@@ -51,7 +54,7 @@ class Frames2MatrixConverter:
         """
 
         def is_white(color):
-            return color > 200
+            return color > self.white_note_threshold
 
         black_note_row = self.clear_frame[self.black_key_height:self.black_key_height + 1, :]
         black_note_row = np.array(
@@ -72,7 +75,7 @@ class Frames2MatrixConverter:
                 if i - note_start < self.note_gap_length:
                     note_start = i + 1
                 else:
-                    mid = ((note_start + i) / 2)
+                    mid = ((note_start + i - 1) / 2)
 
                     # if its black, the color at the mid value will be black
                     if black_note_row[int(mid)] == 0:
@@ -102,7 +105,7 @@ class Frames2MatrixConverter:
                             on_note = integer
                             break
 
-                    mid = ((note_start + i) / 2)
+                    mid = ((note_start + i - 1) / 2)
 
                     # if its white, the color at the mid value will be white
                     if white_note_row[int(mid)] == 255:
