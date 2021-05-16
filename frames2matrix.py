@@ -175,22 +175,21 @@ class Frames2MatrixConverter:
         relevant_part_of_img = [self.get_hand(img_row[i]) for i in range(img_len)]
 
         note_start = 0
-        # go through the relevant part of the image
-        for i in range(1, img_len - 1):
 
+        for i in range(1, img_len - 1):
             this_pixel = relevant_part_of_img[i]
             last_pixel = relevant_part_of_img[i - 1]
 
-            # this means that at this position there is a note, while at the last position there wasn't, therefore this
-            # is where a new note starts
-            # TODO what if two of notes right next to each other? Account for that possibility.
-            if this_pixel != 0 and last_pixel == 0:
+            # this means that at this position there is a note, while at the last position there was not or was a note
+            # of a different hand
+            # TODO what if two adjacent notes of the same hand? Account for that possibility.
+            if this_pixel != 0 and last_pixel != this_pixel:
                 note_start = i
 
             # this means that at this position there is not a note, while at the last position there was, therefore,
             # this is where a note ends. Need to calculate middle of the note to find out what note it actually is.
-            # i - notestart > 3 makes sure that one random pixel being on doesn't cause program to think a note is there
-            if this_pixel == 0 and last_pixel != 0 and i - note_start > 3:
+            # i - notestart > x makes sure that one random pixel being on doesn't cause program to think a note is there
+            if last_pixel != 0 and this_pixel != last_pixel and i - note_start > self.note_gap_length:
                 mid = int(note_start + (i - note_start) / 2)
                 note = self.get_note(mid)
                 mid_pixel = relevant_part_of_img[mid]
