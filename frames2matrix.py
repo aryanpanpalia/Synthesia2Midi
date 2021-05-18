@@ -44,10 +44,10 @@ class Frames2MatrixConverter:
         self.right_hand_color_lab = cv2.cvtColor(self.right_hand_color, cv2.COLOR_RGB2LAB).reshape((3,)).astype('int32')
         self.background_color_lab = cv2.cvtColor(self.background_color, cv2.COLOR_RGB2LAB).reshape((3,)).astype('int32')
 
-        self.pixel2note = self.create_pixel_to_note()
-        self.last_key_number = list(self.pixel2note.values())[-1]
+        self.column2note = self.create_column2note()
+        self.last_key_number = list(self.column2note.values())[-1]
 
-    def create_pixel_to_note(self):
+    def create_column2note(self):
         """
         creates a dictionary that maps the middle of all the keys to what note number they are
         :return: a dictionary that maps the middle of all the keys to what note number they are
@@ -61,7 +61,7 @@ class Frames2MatrixConverter:
             [255 if is_white(black_note_row[0, i]) else 0 for i in range(black_note_row.shape[1])]
         )
 
-        pixel_to_note = {}
+        column2note = {}
 
         on_note = 0
         note_start = 0
@@ -79,7 +79,7 @@ class Frames2MatrixConverter:
 
                     # if its black, the color at the mid value will be black
                     if black_note_row[int(mid)] == 0:
-                        pixel_to_note[mid] = on_note
+                        column2note[mid] = on_note
 
                     # will increment note whether or not the last note was black
                     note_start = i + 1
@@ -98,7 +98,7 @@ class Frames2MatrixConverter:
                 if i - note_start < self.note_gap_length:
                     note_start = i + 1
                 else:
-                    used_notes = list(pixel_to_note.values())
+                    used_notes = list(column2note.values())
 
                     for integer in range(88):
                         if integer not in used_notes:
@@ -109,22 +109,22 @@ class Frames2MatrixConverter:
 
                     # if its white, the color at the mid value will be white
                     if white_note_row[int(mid)] == 255:
-                        pixel_to_note[mid] = on_note
+                        column2note[mid] = on_note
 
                     note_start = i + 1
 
-        pixel_to_note = {key: pixel_to_note[key] for key in sorted(pixel_to_note)}
-        return pixel_to_note
+        column2note = {key: column2note[key] for key in sorted(column2note)}
+        return column2note
 
     def get_note(self, pixel_col):
         """
         :param pixel_col: the column on the image
         :return: the note the pixel_col corresponds to (numerically)
         """
-        pixel_to_note = self.pixel2note
+        column2note = self.column2note
 
-        note = pixel_to_note.get(pixel_col) or \
-               pixel_to_note[min(pixel_to_note.keys(), key=lambda key: abs(key - pixel_col))]
+        note = column2note.get(pixel_col) or \
+               column2note[min(column2note.keys(), key=lambda key: abs(key - pixel_col))]
 
         return note
 
@@ -159,8 +159,8 @@ class Frames2MatrixConverter:
     def get_notes_from_frame(self, frame):
         """ takes in an image frame and returns the notes being played in it at the read height
         :param frame: the frame to read
-        :return: the notes about to be played in the frame as a list. [left hand, right hand] with the hands being in
-                 the form [note_number, note_letter, note_octave] with the note_number starting at 0
+        :return: the notes about to be played in the frame as a list. [left hand, right hand] with the hands being a
+                 list of note numbers.
         """
 
         left_hand_notes = []
@@ -171,7 +171,6 @@ class Frames2MatrixConverter:
         img_row = image[self.read_height:self.read_height + 1, :, :].reshape(-1, 3)
         img_len = img_row.shape[0]
 
-        # makes information concise. no note is 0, left hand is 1, and right hand is 2.
         relevant_part_of_img = [self.get_hand(img_row[i]) for i in range(img_len)]
 
         note_start = 0
@@ -180,22 +179,19 @@ class Frames2MatrixConverter:
             this_pixel = relevant_part_of_img[i]
             last_pixel = relevant_part_of_img[i - 1]
 
-            # this means that at this position there is a note, while at the last position there was not or was a note
-            # of a different hand
+            # this means that a new note begins here
             # TODO what if two adjacent notes of the same hand? Account for that possibility.
             if this_pixel != 0 and last_pixel != this_pixel:
                 note_start = i
 
-            # this means that at this position there is not a note, while at the last position there was, therefore,
-            # this is where a note ends. Need to calculate middle of the note to find out what note it actually is.
+            # This is where a note ends. Need to calculate middle of the note to find out what note it actually is.
             # i - notestart > x makes sure that one random pixel being on doesn't cause program to think a note is there
             if last_pixel != 0 and this_pixel != last_pixel and i - note_start > self.note_gap_length:
                 mid = int(note_start + (i - note_start) / 2)
                 note = self.get_note(mid)
                 mid_pixel = relevant_part_of_img[mid]
 
-                # this means that the last pixel was on the top/bottom of a note and therefore may be kinda wack so
-                # skip it
+                # means that the last pixel was on the top/bottom row of a note so skip it
                 above_last_note = self.get_hand(image[self.read_height - 1][mid])
                 below_last_note = self.get_hand(image[self.read_height + 1][mid])
                 if above_last_note == 0 or below_last_note == 0:
@@ -223,12 +219,11 @@ class Frames2MatrixConverter:
     def convert(self):
         """
         converts the frames into 2 matrices, one for each hand, that tells when each key is being played
-        :return: 2 matrices, one for each hand, that tells when each key is being played
+        :return: 2 matrices, one for each hand, that tells when each key is being played (0 corresponding to note off
+                 1 to note on.) Tells the time in frame number.
         """
         left_hand = []
         right_hand = []
-
-        # TODO change it so that the matrix time isn't in terms of frames but in seconds so that partial frames can be used
 
         with concurrent.futures.ProcessPoolExecutor() as executor:
             frames = range(self.number_of_frames)
