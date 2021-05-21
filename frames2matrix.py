@@ -153,17 +153,18 @@ class Frames2MatrixConverter:
         else:
             return 0
 
-    def get_notes_from_frame(self, frame):
+    def get_notes_from_frame(self, frame_num):
         """ takes in an image frame and returns the notes being played in it at the read height
-        :param frame: the frame to read
-        :return: the notes about to be played in the frame as a list. [left hand, right hand] with the hands being a
-                 list of note numbers.
+        :param frame_num: the frame number to read
+        :return: the notes about to be played in the frame as a list. [left hand, right hand] with the hands being an
+                 array with where each note number corresponds with one index and a 1 in the array corresponds to a note
+                 being played.
         """
 
-        left_hand_notes = []
-        right_hand_notes = []
+        left_hand_notes = np.zeros(shape=(self.last_key_number,), dtype=np.uint8)
+        right_hand_notes = np.zeros(shape=(self.last_key_number,), dtype=np.uint8)
 
-        image = cv2.imread(frame)  # in BGR
+        image = cv2.imread(f'{self.frame_dir}/frame_{frame_num}.jpg')  # in BGR
 
         img_row = image[self.read_height:self.read_height + 1, :, :].reshape(-1, 3)
         img_len = img_row.shape[0]
@@ -195,23 +196,11 @@ class Frames2MatrixConverter:
                     continue
 
                 if mid_pixel == 1:
-                    left_hand_notes.append(note)
+                    left_hand_notes[note] = 1
                 elif mid_pixel == 2:
-                    right_hand_notes.append(note)
+                    right_hand_notes[note] = 1
 
-        notes = [left_hand_notes, right_hand_notes]
-        return notes
-
-    def process_frame(self, frame_num):
-        """
-        finds all the notes being played in a frame and then formats it
-        :param frame_num: frame number to get notes off of
-        :return: 2 lists, one for each hand, which matches the notes and has a 1 if its being played and a 0 if not
-        """
-        notes = self.get_notes_from_frame(f'{self.frame_dir}/frame_{frame_num}.jpg')
-        lr = [1 if i in notes[0] else 0 for i in range(self.last_key_number)]
-        rr = [1 if i in notes[1] else 0 for i in range(self.last_key_number)]
-        return lr, rr
+        return left_hand_notes, right_hand_notes
 
     def convert(self):
         """
@@ -226,7 +215,7 @@ class Frames2MatrixConverter:
             frames = range(self.number_of_frames)
             results = list(
                 tqdm(
-                    executor.map(self.process_frame, frames),
+                    executor.map(self.get_notes_from_frame, frames),
                     total=len(frames),
                     file=sys.stdout,
                     desc="Frames Processed"
