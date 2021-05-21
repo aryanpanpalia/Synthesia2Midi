@@ -129,3 +129,6 @@ dmypy.json
 */csvs
 */*.mp4
 */*.mid
+
+# Ignore testing
+testing.py
