@@ -121,10 +121,7 @@ class Frames2MatrixConverter:
         :param pixel_col: the column on the image
         :return: the note the pixel_col corresponds to (numerically)
         """
-        column2note = self.column2note
-
-        note = column2note.get(pixel_col) or \
-               column2note[min(column2note.keys(), key=lambda key: abs(key - pixel_col))]
+        note = self.column2note[min(self.column2note.keys(), key=lambda key: abs(key - pixel_col))]
 
         return note
 
