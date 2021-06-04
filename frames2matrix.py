@@ -73,16 +73,16 @@ class Frames2MatrixConverter:
 
             if np.abs(this_note - last_note) > 0:
                 if i - note_start < self.note_gap_length:
-                    note_start = i + 1
+                    note_start = i
                 else:
-                    mid = ((note_start + i - 1) / 2)
+                    mid = (i - note_start) / 2 + note_start
 
                     # if its black, the color at the mid value will be black
                     if black_note_row[int(mid)] == 0:
                         column2note[mid] = on_note
 
                     # will increment note whether or not the last note was black
-                    note_start = i + 1
+                    note_start = i
                     on_note += 1
 
         white_note_row = self.clear_frame[self.white_key_height:self.white_key_height + 1, :]
@@ -105,7 +105,7 @@ class Frames2MatrixConverter:
                             on_note = integer
                             break
 
-                    mid = ((note_start + i - 1) / 2)
+                    mid = (i - note_start) / 2 + note_start
 
                     # if its white, the color at the mid value will be white
                     if white_note_row[int(mid)] == 255:
@@ -171,6 +171,15 @@ class Frames2MatrixConverter:
 
         relevant_part_of_img = [self.get_hand(img_row[i]) for i in range(img_len)]
 
+        # De-noising. If a pixel does not have any neighbors that are the same, it is a mistake to be removed.
+        for i in range(1, img_len - 1):
+            this_pixel = relevant_part_of_img[i]
+            last_pixel = relevant_part_of_img[i-1]
+            next_pixel = relevant_part_of_img[i+1]
+
+            if this_pixel != last_pixel and this_pixel != next_pixel:
+                relevant_part_of_img[i] = 0
+
         note_start = 0
 
         for i in range(1, img_len - 1):
@@ -178,7 +187,6 @@ class Frames2MatrixConverter:
             last_pixel = relevant_part_of_img[i - 1]
 
             # this means that a new note begins here
-            # TODO what if two adjacent notes of the same hand? Account for that possibility.
             if this_pixel != 0 and last_pixel != this_pixel:
                 note_start = i
 
