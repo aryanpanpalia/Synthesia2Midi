@@ -34,8 +34,8 @@ def show_frames(frame_dir, n_f):
 if __name__ == '__main__':
     PROJECT_DIR = os.getcwd()
 
-    VIDEO_NAME = 'Pirates'
-    VIDEO_URL = 'https://www.youtube.com/watch?v=tHQa6Fwu-II'
+    VIDEO_NAME = 'Jazz'
+    VIDEO_URL = 'https://www.youtube.com/watch?v=9p2kKIoF2xo'
 
     num_frames, fps = youtube2frames.get_frames(video_url=VIDEO_URL, video_name=VIDEO_NAME)
 
@@ -48,6 +48,8 @@ if __name__ == '__main__':
     read_height = int(input("Enter the read height: "))
     left_hand_color = json.loads(input("Enter the left hand note's color in [R, G, B]: "))
     right_hand_color = json.loads(input("Enter the right hand note's color in [R, G, B]: "))
+    background_color = json.loads(input("Enter the background color in [R, G, B]: "))
+    note_gap_length = int(input("Enter the note gap length: "))
 
     left_hand, right_hand = frames2matrix.Frames2MatrixConverter(
         f'{PROJECT_DIR}/{VIDEO_NAME}/frames',
@@ -57,7 +59,9 @@ if __name__ == '__main__':
         read_height=read_height,
         left_hand_color=left_hand_color,
         right_hand_color=right_hand_color,
-        white_note_threshold=white_note_threshold
+        background_color=background_color,
+        white_note_threshold=white_note_threshold,
+        note_gap_length=note_gap_length
     ).convert()
 
     matrix2csv.matrix_to_csv(left_hand, right_hand, VIDEO_NAME, fps)

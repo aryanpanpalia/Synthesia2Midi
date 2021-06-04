@@ -10,7 +10,7 @@ from tqdm import tqdm
 class Frames2MatrixConverter:
     def __init__(self, frame_dir, clear_frame, black_key_height, white_key_height, read_height,
                  left_hand_color, right_hand_color, white_note_threshold,
-                 background_color=[33, 33, 33], note_gap_length=3):
+                 background_color, note_gap_length):
         """
         :param frame_dir: the directory the frames are in
         :param clear_frame: a frame that has no notes colored/pressed/obstructed
@@ -174,8 +174,8 @@ class Frames2MatrixConverter:
         # De-noising. If a pixel does not have any neighbors that are the same, it is a mistake to be removed.
         for i in range(1, img_len - 1):
             this_pixel = relevant_part_of_img[i]
-            last_pixel = relevant_part_of_img[i-1]
-            next_pixel = relevant_part_of_img[i+1]
+            last_pixel = relevant_part_of_img[i - 1]
+            next_pixel = relevant_part_of_img[i + 1]
 
             if this_pixel != last_pixel and this_pixel != next_pixel:
                 relevant_part_of_img[i] = 0
