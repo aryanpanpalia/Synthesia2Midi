@@ -1,11 +1,31 @@
 import concurrent.futures
 import os
+import shutil
 import sys
 
 # image operation
 import cv2
 from pytube import YouTube
 from tqdm import tqdm
+
+
+def display_progress_bar(bytes_received: int, filesize: int, ch: str = "█", scale: float = 0.55):
+    columns = shutil.get_terminal_size().columns
+    max_width = int(columns * scale)
+
+    filled = int(round(max_width * bytes_received / float(filesize)))
+    remaining = max_width - filled
+    progress_bar = ch * filled + " " * remaining
+    percent = round(100.0 * bytes_received / float(filesize), 1)
+    text = f"Video downloaded: {percent}%|{progress_bar}| {bytes_received}/{filesize}\r"
+    sys.stdout.write(text)
+    sys.stdout.flush()
+
+
+def on_progress(stream, chunk: bytes, bytes_remaining: int):
+    filesize = stream.filesize
+    bytes_received = filesize - bytes_remaining
+    display_progress_bar(bytes_received, filesize)
 
 
 class FrameExtractor:
@@ -19,7 +39,7 @@ class FrameExtractor:
             raise Exception("You did not pass in a path for the images to go")
 
         os.mkdir(dest_path)
-        print(f'Created the following directory: {dest_path}')
+        print(f'\nCreated the following directory: {dest_path}')
 
         with concurrent.futures.ThreadPoolExecutor() as executor:
             images = (self.vid_cap.read()[1] for _ in range(self.n_frames))
@@ -39,7 +59,7 @@ class FrameExtractor:
 
 
 def get_frames(video_url, video_name=None):
-    video = YouTube(video_url)
+    video = YouTube(video_url, on_progress_callback=on_progress)
     if video_name is None:
         video_name = video.title
 
