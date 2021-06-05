@@ -126,6 +126,7 @@ dmypy.json
 
 # Ignore songs/frames/midis (custom)
 */frames
+*/arrays
 */csvs
 */*.mp4
 */*.mid
@@ -133,3 +134,5 @@ dmypy.json
 # Ignore testing
 testing.py
 testing_gui.py
+notes.txt
+profiler.png

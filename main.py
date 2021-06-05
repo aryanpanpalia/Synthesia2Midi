@@ -34,7 +34,7 @@ def show_frames(frame_dir, n_f):
 if __name__ == '__main__':
     PROJECT_DIR = os.getcwd()
 
-    VIDEO_NAME = 'Jazz'
+    VIDEO_NAME = 'Round Midnight'
     VIDEO_URL = 'https://www.youtube.com/watch?v=9p2kKIoF2xo'
 
     num_frames, fps = youtube2frames.get_frames(video_url=VIDEO_URL, video_name=VIDEO_NAME)
@@ -52,7 +52,8 @@ if __name__ == '__main__':
     note_gap_length = int(input("Enter the note gap length: "))
 
     left_hand, right_hand = frames2matrix.Frames2MatrixConverter(
-        f'{PROJECT_DIR}/{VIDEO_NAME}/frames',
+        name=VIDEO_NAME,
+        frame_dir=f'{PROJECT_DIR}/{VIDEO_NAME}/frames',
         clear_frame=f"{PROJECT_DIR}/{VIDEO_NAME}/frames/frame_{clear_frame_number}.jpg",
         black_key_height=black_key_height,
         white_key_height=white_key_height,

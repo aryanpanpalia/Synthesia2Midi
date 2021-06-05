@@ -124,22 +124,20 @@ def matrix_to_csv(l, r, song_name, fps):
     except FileExistsError:
         pass
 
-    os.chdir(f'{song_name}/csvs')
-
     # full song
     lines = []
     lines.extend([f"0, 0, Header, 1, 2, {PPQ}\n"])
     lines.extend(right_lines)
     lines.extend(left_lines)
     lines.extend(["0, 0, End_of_file\n"])
-    write_lines(f"{song_name}.csv", lines)
+    write_lines(f"{song_name}/csvs/{song_name}.csv", lines)
 
     # right hand only
     lines = []
     lines.extend([f"0, 0, Header, 1, 1, {PPQ}\n"])
     lines.extend(right_lines)
     lines.extend(["0, 0, End_of_file\n"])
-    write_lines(f"{song_name}_rh.csv", lines)
+    write_lines(f"{song_name}/csvs/{song_name}_rh.csv", lines)
 
     # left hand only
     left_lines = [
@@ -159,4 +157,4 @@ def matrix_to_csv(l, r, song_name, fps):
     lines.extend(left_lines)
     lines.extend([f"0, 0, Header, 1, 1, {PPQ}\n"])
 
-    write_lines(f"{song_name}_lh.csv", lines)
+    write_lines(f"{song_name}/csvs/{song_name}_lh.csv", lines)

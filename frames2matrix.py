@@ -8,10 +8,11 @@ from tqdm import tqdm
 
 
 class Frames2MatrixConverter:
-    def __init__(self, frame_dir, clear_frame, black_key_height, white_key_height, read_height,
+    def __init__(self, name, frame_dir, clear_frame, black_key_height, white_key_height, read_height,
                  left_hand_color, right_hand_color, white_note_threshold,
                  background_color, note_gap_length):
         """
+        :param name: name of the song
         :param frame_dir: the directory the frames are in
         :param clear_frame: a frame that has no notes colored/pressed/obstructed
         :param black_key_height: height of black keys
@@ -26,6 +27,7 @@ class Frames2MatrixConverter:
                                 is too small, it will think of some note gaps as actual notes.
         """
 
+        self.name = name
         self.white_note_threshold = white_note_threshold
         self.frame_dir = frame_dir
         self.clear_frame = cv2.imread(clear_frame, cv2.IMREAD_GRAYSCALE)
@@ -236,6 +238,10 @@ class Frames2MatrixConverter:
 
         left_hand = np.array(left_hand).reshape((self.number_of_frames, self.last_key_number))
         right_hand = np.array(right_hand).reshape((self.number_of_frames, self.last_key_number))
+
+        os.mkdir(f'./{self.name}/arrays')
+        np.save(f'./{self.name}/arrays/left_hand.npy', left_hand)
+        np.save(f'./{self.name}/arrays/right_hand.npy', right_hand)
 
         def to_intervals(array):
             in_intervals = []
