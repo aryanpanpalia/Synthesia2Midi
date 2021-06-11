@@ -8,13 +8,13 @@ from tqdm import tqdm
 
 
 class Frames2MatrixConverter:
-    def __init__(self, name, frame_dir, clear_frame, black_key_height, white_key_height, read_height,
-                 left_hand_color, right_hand_color, white_note_threshold,
-                 background_color, note_gap_length):
+    def __init__(self, name, frame_dir, clear_frame_number, num_frames, black_key_height, white_key_height, read_height,
+                 left_hand_color, right_hand_color, white_note_threshold, background_color, note_gap_length):
         """
         :param name: name of the song
         :param frame_dir: the directory the frames are in
-        :param clear_frame: a frame that has no notes colored/pressed/obstructed
+        :param clear_frame_number: the frame number of a frame that has no notes colored/pressed/obstructed
+        :param num_frames: the number of frames
         :param black_key_height: height of black keys
         :param white_key_height: height where no black keys
         :param read_height: the height from which to read notes
@@ -30,13 +30,12 @@ class Frames2MatrixConverter:
         self.name = name
         self.white_note_threshold = white_note_threshold
         self.frame_dir = frame_dir
-        self.clear_frame = cv2.imread(clear_frame, cv2.IMREAD_GRAYSCALE)
+        self.clear_frame = cv2.imread(f"{self.frame_dir}/frame_{clear_frame_number}.jpg", cv2.IMREAD_GRAYSCALE)
         self.black_key_height = black_key_height
         self.white_key_height = white_key_height
         self.read_height = read_height
         self.note_gap_length = note_gap_length
-
-        self.number_of_frames = len([name for name in os.listdir(frame_dir) if os.path.isfile(f'{frame_dir}/{name}')])
+        self.number_of_frames = num_frames
 
         self.left_hand_color = np.array(left_hand_color, dtype=np.uint8).reshape((1, 1, 3))
         self.right_hand_color = np.array(right_hand_color, dtype=np.uint8).reshape((1, 1, 3))
@@ -239,42 +238,4 @@ class Frames2MatrixConverter:
         left_hand = np.array(left_hand).reshape((self.number_of_frames, self.last_key_number))
         right_hand = np.array(right_hand).reshape((self.number_of_frames, self.last_key_number))
 
-        os.mkdir(f'./{self.name}/arrays')
-        np.save(f'./{self.name}/arrays/left_hand.npy', left_hand)
-        np.save(f'./{self.name}/arrays/right_hand.npy', right_hand)
-
-        def to_intervals(array):
-            in_intervals = []
-
-            for column_index in range(array.shape[1]):
-                col = array[:, column_index]
-                new = []
-                count = 1
-
-                for i in range(1, col.shape[0]):
-                    if col[i] == col[i - 1]:
-                        count += 1
-                        if i == col.shape[0] - 1:  # if on the last element of column. have to record now.
-                            new.append([col[i], count])
-                    else:
-                        new.append([col[i - 1], count])
-                        count = 1
-
-                in_intervals.append(new)
-
-            return in_intervals
-
-        def to_abs(array):
-            in_abs = []
-
-            for note in array:
-                new = []
-                time_count = 0
-                for occurrence in note:
-                    new.append([occurrence[0], time_count])
-                    time_count += occurrence[1]
-                in_abs.append(new)
-
-            return in_abs
-
-        return to_abs(to_intervals(left_hand)), to_abs(to_intervals(right_hand))
+        return right_hand, left_hand

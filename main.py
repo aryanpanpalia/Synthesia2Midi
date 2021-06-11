@@ -4,6 +4,7 @@ import json
 
 import cv2
 import matplotlib.pyplot as plt
+import numpy as np
 import py_midicsv as pm
 
 import frames2matrix
@@ -31,15 +32,34 @@ def show_frames(frame_dir, n_f):
             index += int(n_f / 128)
 
 
-if __name__ == '__main__':
-    PROJECT_DIR = os.getcwd()
+def write_lines(file_name, lines):
+    file = open(file_name, 'a')
+    for line in lines:
+        file.write(line)
+    file.close()
 
+
+if __name__ == '__main__':
     VIDEO_NAME = 'Round Midnight'
     VIDEO_URL = 'https://www.youtube.com/watch?v=9p2kKIoF2xo'
 
-    num_frames, fps = youtube2frames.get_frames(video_url=VIDEO_URL, video_name=VIDEO_NAME)
+    VIDEO_DIR_PATH = f'./{VIDEO_NAME}'
+    FRAME_DIR_PATH = f'./{VIDEO_NAME}/frames'
+    ARRAY_DIR_PATH = f'./{VIDEO_NAME}/arrays'
+    CSV_DIR_PATH = f'./{VIDEO_NAME}/csvs'
+    MIDI_DIR_PATH = f'./{VIDEO_NAME}'
 
-    show_frames(f"{PROJECT_DIR}/{VIDEO_NAME}/frames", num_frames)
+    os.makedirs(VIDEO_DIR_PATH, exist_ok=True)
+    print(f'Created the following directory: {VIDEO_DIR_PATH}')
+
+    num_frames, fps = youtube2frames.get_frames(
+        video_url=VIDEO_URL,
+        video_name=VIDEO_NAME,
+        video_dir_path=VIDEO_DIR_PATH,
+        frame_dir_path=FRAME_DIR_PATH
+    )
+
+    show_frames(FRAME_DIR_PATH, num_frames)
 
     white_note_threshold = int(input("Enter the minimum pixel brightness that should correspond to a white note: "))
     white_key_height = int(input("Enter the white key height: "))
@@ -53,8 +73,9 @@ if __name__ == '__main__':
 
     left_hand, right_hand = frames2matrix.Frames2MatrixConverter(
         name=VIDEO_NAME,
-        frame_dir=f'{PROJECT_DIR}/{VIDEO_NAME}/frames',
-        clear_frame=f"{PROJECT_DIR}/{VIDEO_NAME}/frames/frame_{clear_frame_number}.jpg",
+        frame_dir=FRAME_DIR_PATH,
+        clear_frame_number=clear_frame_number,
+        num_frames=num_frames,
         black_key_height=black_key_height,
         white_key_height=white_key_height,
         read_height=read_height,
@@ -65,20 +86,31 @@ if __name__ == '__main__':
         note_gap_length=note_gap_length
     ).convert()
 
-    matrix2csv.matrix_to_csv(left_hand, right_hand, VIDEO_NAME, fps)
+    os.makedirs(ARRAY_DIR_PATH, exist_ok=True)
+    print(f'Created the following directory: {ARRAY_DIR_PATH}')
+    np.save(f'{ARRAY_DIR_PATH}/left_hand.npy', left_hand)
+    np.save(f'{ARRAY_DIR_PATH}/right_hand.npy', right_hand)
+
+    full_csv_lines, right_csv_lines, left_csv_lines = matrix2csv.matrix_to_csv(left_hand, right_hand, fps)
+
+    os.makedirs(CSV_DIR_PATH, exist_ok=True)
+    print(f'Created the following directory: {CSV_DIR_PATH}')
+    write_lines(f'{CSV_DIR_PATH}/{VIDEO_NAME}.csv', full_csv_lines)
+    write_lines(f'{CSV_DIR_PATH}/{VIDEO_NAME}_rh.csv', right_csv_lines)
+    write_lines(f'{CSV_DIR_PATH}/{VIDEO_NAME}_lh.csv', left_csv_lines)
+
+    os.makedirs(MIDI_DIR_PATH, exist_ok=True)
+    print(f'Created the following directory: {MIDI_DIR_PATH}')
 
     # Parse the CSVs into a MIDI files, then save the parsed MIDI files
-    with open(f"{PROJECT_DIR}/{VIDEO_NAME}/{VIDEO_NAME}.mid", "wb") as output_file:
-        midi_object = pm.csv_to_midi(f'{PROJECT_DIR}/{VIDEO_NAME}/csvs/{VIDEO_NAME}.csv')
-        midi_writer = pm.FileWriter(output_file)
-        midi_writer.write(midi_object)
+    with open(f"{MIDI_DIR_PATH}/{VIDEO_NAME}.mid", "wb") as output_file:
+        midi_object = pm.csv_to_midi(f'{CSV_DIR_PATH}/{VIDEO_NAME}.csv')
+        pm.FileWriter(output_file).write(midi_object)
 
-    with open(f"{PROJECT_DIR}/{VIDEO_NAME}/{VIDEO_NAME}_rh.mid", "wb") as output_file:
-        midi_object = pm.csv_to_midi(f'{PROJECT_DIR}/{VIDEO_NAME}/csvs/{VIDEO_NAME}_rh.csv')
-        midi_writer = pm.FileWriter(output_file)
-        midi_writer.write(midi_object)
+    with open(f"{MIDI_DIR_PATH}/{VIDEO_NAME}_rh.mid", "wb") as output_file:
+        midi_object = pm.csv_to_midi(f'{CSV_DIR_PATH}/{VIDEO_NAME}_rh.csv')
+        pm.FileWriter(output_file).write(midi_object)
 
-    with open(f"{PROJECT_DIR}/{VIDEO_NAME}/{VIDEO_NAME}_lh.mid", "wb") as output_file:
-        midi_object = pm.csv_to_midi(f'{PROJECT_DIR}/{VIDEO_NAME}/csvs/{VIDEO_NAME}_lh.csv')
-        midi_writer = pm.FileWriter(output_file)
-        midi_writer.write(midi_object)
+    with open(f"{MIDI_DIR_PATH}/{VIDEO_NAME}_lh.mid", "wb") as output_file:
+        midi_object = pm.csv_to_midi(f'{CSV_DIR_PATH}/{VIDEO_NAME}_lh.csv')
+        pm.FileWriter(output_file).write(midi_object)
