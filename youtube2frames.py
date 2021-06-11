@@ -28,10 +28,8 @@ def on_progress(stream, chunk: bytes, bytes_remaining: int):
     display_progress_bar(bytes_received, filesize)
 
 
-def get_frames(video_url, video_dir_path, frame_dir_path, video_name=None):
+def get_frames(video_url, video_dir_path, frame_dir_path, video_name):
     video = YouTube(video_url, on_progress_callback=on_progress)
-    if video_name is None:
-        video_name = video.title
 
     print('*' * 60)
     for stream in video.streams.filter(mime_type="video/mp4").order_by('fps'):
