@@ -77,7 +77,7 @@ def matrix_to_csv(left_hand_array, right_hand_array, fps):
 
     # adds the notes played by the right hand to the right lines for its csv, sorts them, then ends the track
     right_hand_lines.extend(get_lines_from(right_hand_array, track_num=1, fps=fps, ticks_per_ms=ticks_per_ms))
-    right_hand_lines.sort(key=lambda line: int(float(line[line.index(",") + 2: line.index(",", line.index(",") + 2)])))
+    right_hand_lines.sort(key=lambda line: float(line[line.index(",") + 2: line.index(",", line.index(",") + 2)]))
     end_time = int(float(right_hand_lines[-1].split(',')[1]))
     right_hand_lines.append(f"1, {end_time + 5000}, End_track\n")
 
@@ -89,7 +89,7 @@ def matrix_to_csv(left_hand_array, right_hand_array, fps):
 
     # adds the notes played by the left hand to the left lines for its csv, sorts them, then ends the track
     left_hand_lines.extend(get_lines_from(left_hand_array, track_num=2, fps=fps, ticks_per_ms=ticks_per_ms))
-    left_hand_lines.sort(key=lambda line: int(float(line[line.index(",") + 2: line.index(",", line.index(",") + 2)])))
+    left_hand_lines.sort(key=lambda line: float(line[line.index(",") + 2: line.index(",", line.index(",") + 2)]))
     end_time = int(float(left_hand_lines[-1].split(',')[1]))
     left_hand_lines.append(f"2, {end_time + 5000}, End_track\n")
 
@@ -115,7 +115,7 @@ def matrix_to_csv(left_hand_array, right_hand_array, fps):
 
     # adds the notes played by the left hand to the left lines for its csv, sorts them, then ends the track
     left_hand_lines.extend(get_lines_from(left_hand_array, track_num=1, fps=fps, ticks_per_ms=ticks_per_ms))
-    left_hand_lines.sort(key=lambda line: int(float(line[line.index(",") + 2: line.index(",", line.index(",") + 2)])))
+    left_hand_lines.sort(key=lambda line: float(line[line.index(",") + 2: line.index(",", line.index(",") + 2)]))
     end_time = int(float(left_hand_lines[-1].split(',')[1]))
     left_hand_lines.append(f"1, {end_time + 5000}, End_track\n")
 
