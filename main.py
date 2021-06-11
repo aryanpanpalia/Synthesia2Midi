@@ -7,9 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import py_midicsv as pm
 
-import frames2matrix
-import matrix2csv
-import youtube2frames
+from core import frames2matrix, youtube2frames, matrix2csv
 
 
 def show_image(path):
@@ -56,7 +54,8 @@ if __name__ == '__main__':
         video_url=VIDEO_URL,
         video_name=VIDEO_NAME,
         video_dir_path=VIDEO_DIR_PATH,
-        frame_dir_path=FRAME_DIR_PATH
+        frame_dir_path=FRAME_DIR_PATH,
+        tag=18
     )
 
     show_frames(FRAME_DIR_PATH, num_frames)
