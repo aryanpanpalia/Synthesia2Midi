@@ -33,7 +33,6 @@ def show_frames(frame_dir, n_f):
 
 
 def write_lines(file_name, lines):
-    # write lines to file
     file = open(file_name, 'a')
     for line in lines:
         file.write(line)
@@ -41,12 +40,14 @@ def write_lines(file_name, lines):
 
 
 if __name__ == '__main__':
-    PROJECT_DIR = os.getcwd()
-
     VIDEO_NAME = 'Round Midnight'
     VIDEO_URL = 'https://www.youtube.com/watch?v=9p2kKIoF2xo'
+
     VIDEO_DIR_PATH = f'./{VIDEO_NAME}'
-    FRAME_DIR_PATH = f'./{VIDEO_NAME}/frames/frames'
+    FRAME_DIR_PATH = f'./{VIDEO_NAME}/frames'
+    ARRAY_DIR_PATH = f'./{VIDEO_NAME}/arrays'
+    CSV_DIR_PATH = f'./{VIDEO_NAME}/csvs'
+    MIDI_DIR_PATH = f'./{VIDEO_NAME}'
 
     num_frames, fps = youtube2frames.get_frames(
         video_url=VIDEO_URL,
@@ -70,7 +71,8 @@ if __name__ == '__main__':
     left_hand, right_hand = frames2matrix.Frames2MatrixConverter(
         name=VIDEO_NAME,
         frame_dir=FRAME_DIR_PATH,
-        clear_frame=f"{FRAME_DIR_PATH}/frame_{clear_frame_number}.jpg",
+        clear_frame_number=clear_frame_number,
+        num_frames=num_frames,
         black_key_height=black_key_height,
         white_key_height=white_key_height,
         read_height=read_height,
@@ -81,29 +83,26 @@ if __name__ == '__main__':
         note_gap_length=note_gap_length
     ).convert()
 
-    os.mkdir(f'./{VIDEO_NAME}/arrays')
-    np.save(f'./{VIDEO_NAME}/arrays/left_hand.npy', left_hand)
-    np.save(f'./{VIDEO_NAME}/arrays/right_hand.npy', right_hand)
+    os.mkdir(ARRAY_DIR_PATH)
+    np.save(f'{ARRAY_DIR_PATH}/left_hand.npy', left_hand)
+    np.save(f'{ARRAY_DIR_PATH}/right_hand.npy', right_hand)
 
     full_csv_lines, right_csv_lines, left_csv_lines = matrix2csv.matrix_to_csv(left_hand, right_hand, fps)
 
-    os.mkdir(f'./{VIDEO_NAME}/csvs')
-    write_lines(f'./{VIDEO_NAME}/csvs/{VIDEO_NAME}.csv', full_csv_lines)
-    write_lines(f'./{VIDEO_NAME}/csvs/{VIDEO_NAME}_rh.csv', right_csv_lines)
-    write_lines(f'./{VIDEO_NAME}/csvs/{VIDEO_NAME}_lh.csv', left_csv_lines)
+    os.mkdir(CSV_DIR_PATH)
+    write_lines(f'{CSV_DIR_PATH}/{VIDEO_NAME}.csv', full_csv_lines)
+    write_lines(f'{CSV_DIR_PATH}/{VIDEO_NAME}_rh.csv', right_csv_lines)
+    write_lines(f'{CSV_DIR_PATH}/{VIDEO_NAME}_lh.csv', left_csv_lines)
 
     # Parse the CSVs into a MIDI files, then save the parsed MIDI files
-    with open(f"{PROJECT_DIR}/{VIDEO_NAME}/{VIDEO_NAME}.mid", "wb") as output_file:
-        midi_object = pm.csv_to_midi(f'{PROJECT_DIR}/{VIDEO_NAME}/csvs/{VIDEO_NAME}.csv')
-        midi_writer = pm.FileWriter(output_file)
-        midi_writer.write(midi_object)
+    with open(f"{MIDI_DIR_PATH}/{VIDEO_NAME}.mid", "wb") as output_file:
+        midi_object = pm.csv_to_midi(f'{CSV_DIR_PATH}/{VIDEO_NAME}.csv')
+        pm.FileWriter(output_file).write(midi_object)
 
-    with open(f"{PROJECT_DIR}/{VIDEO_NAME}/{VIDEO_NAME}_rh.mid", "wb") as output_file:
-        midi_object = pm.csv_to_midi(f'{PROJECT_DIR}/{VIDEO_NAME}/csvs/{VIDEO_NAME}_rh.csv')
-        midi_writer = pm.FileWriter(output_file)
-        midi_writer.write(midi_object)
+    with open(f"{MIDI_DIR_PATH}/{VIDEO_NAME}_rh.mid", "wb") as output_file:
+        midi_object = pm.csv_to_midi(f'{CSV_DIR_PATH}/{VIDEO_NAME}_rh.csv')
+        pm.FileWriter(output_file).write(midi_object)
 
-    with open(f"{PROJECT_DIR}/{VIDEO_NAME}/{VIDEO_NAME}_lh.mid", "wb") as output_file:
-        midi_object = pm.csv_to_midi(f'{PROJECT_DIR}/{VIDEO_NAME}/csvs/{VIDEO_NAME}_lh.csv')
-        midi_writer = pm.FileWriter(output_file)
-        midi_writer.write(midi_object)
+    with open(f"{MIDI_DIR_PATH}/{VIDEO_NAME}_lh.mid", "wb") as output_file:
+        midi_object = pm.csv_to_midi(f'{CSV_DIR_PATH}/{VIDEO_NAME}_lh.csv')
+        pm.FileWriter(output_file).write(midi_object)
