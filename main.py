@@ -45,11 +45,17 @@ if __name__ == '__main__':
 
     VIDEO_NAME = 'Round Midnight'
     VIDEO_URL = 'https://www.youtube.com/watch?v=9p2kKIoF2xo'
+    VIDEO_DIR_PATH = f'./{VIDEO_NAME}'
+    FRAME_DIR_PATH = f'./{VIDEO_NAME}/frames/frames'
 
-    num_frames, fps = youtube2frames.get_frames(video_url=VIDEO_URL, video_name=VIDEO_NAME,
-                                                video_dir_path=f'./{VIDEO_NAME}')
+    num_frames, fps = youtube2frames.get_frames(
+        video_url=VIDEO_URL,
+        video_name=VIDEO_NAME,
+        video_dir_path=VIDEO_DIR_PATH,
+        frame_dir_path=FRAME_DIR_PATH
+    )
 
-    show_frames(f"{PROJECT_DIR}/{VIDEO_NAME}/frames", num_frames)
+    show_frames(FRAME_DIR_PATH, num_frames)
 
     white_note_threshold = int(input("Enter the minimum pixel brightness that should correspond to a white note: "))
     white_key_height = int(input("Enter the white key height: "))
@@ -63,8 +69,8 @@ if __name__ == '__main__':
 
     left_hand, right_hand = frames2matrix.Frames2MatrixConverter(
         name=VIDEO_NAME,
-        frame_dir=f'{PROJECT_DIR}/{VIDEO_NAME}/frames',
-        clear_frame=f"{PROJECT_DIR}/{VIDEO_NAME}/frames/frame_{clear_frame_number}.jpg",
+        frame_dir=FRAME_DIR_PATH,
+        clear_frame=f"{FRAME_DIR_PATH}/frame_{clear_frame_number}.jpg",
         black_key_height=black_key_height,
         white_key_height=white_key_height,
         read_height=read_height,

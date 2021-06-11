@@ -28,7 +28,7 @@ def on_progress(stream, chunk: bytes, bytes_remaining: int):
     display_progress_bar(bytes_received, filesize)
 
 
-def get_frames(video_url, video_dir_path, video_name=None):
+def get_frames(video_url, video_dir_path, frame_dir_path, video_name=None):
     video = YouTube(video_url, on_progress_callback=on_progress)
     if video_name is None:
         video_name = video.title
@@ -50,15 +50,16 @@ def get_frames(video_url, video_dir_path, video_name=None):
     vid_cap = cv2.VideoCapture(f'{video_dir_path}/{video_name}.mp4')
     n_frames = int(vid_cap.get(cv2.CAP_PROP_FRAME_COUNT))
     fps = int(vid_cap.get(cv2.CAP_PROP_FPS))
-    os.mkdir(f'{video_dir_path}/frames')
-    print(f'\nCreated the following directory: {video_dir_path}/frames')
+
+    os.makedirs(frame_dir_path, exist_ok=True)
+    print(f'\nCreated the following directory: {frame_dir_path}')
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
         images = (vid_cap.read()[1] for _ in range(n_frames))
 
         executor.map(
-            save_image,
-            [f'{video_dir_path}/frames'] * n_frames,
+            lambda directory, image, frame_num: cv2.imwrite(f"{directory}/frame_{frame_num}.jpg", image),
+            [frame_dir_path] * n_frames,
             tqdm(
                 images,
                 file=sys.stdout,
@@ -72,8 +73,3 @@ def get_frames(video_url, video_dir_path, video_name=None):
     cv2.destroyAllWindows()
 
     return n_frames, fps
-
-
-def save_image(dest_path, image, frame_num):
-    img_path = f"{dest_path}/frame_{frame_num}.jpg"
-    cv2.imwrite(img_path, image)
