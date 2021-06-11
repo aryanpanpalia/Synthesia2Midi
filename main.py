@@ -49,6 +49,9 @@ if __name__ == '__main__':
     CSV_DIR_PATH = f'./{VIDEO_NAME}/csvs'
     MIDI_DIR_PATH = f'./{VIDEO_NAME}'
 
+    os.makedirs(VIDEO_DIR_PATH, exist_ok=True)
+    print(f'Created the following directory: {VIDEO_DIR_PATH}')
+
     num_frames, fps = youtube2frames.get_frames(
         video_url=VIDEO_URL,
         video_name=VIDEO_NAME,
@@ -83,16 +86,21 @@ if __name__ == '__main__':
         note_gap_length=note_gap_length
     ).convert()
 
-    os.mkdir(ARRAY_DIR_PATH)
+    os.makedirs(ARRAY_DIR_PATH, exist_ok=True)
+    print(f'Created the following directory: {ARRAY_DIR_PATH}')
     np.save(f'{ARRAY_DIR_PATH}/left_hand.npy', left_hand)
     np.save(f'{ARRAY_DIR_PATH}/right_hand.npy', right_hand)
 
     full_csv_lines, right_csv_lines, left_csv_lines = matrix2csv.matrix_to_csv(left_hand, right_hand, fps)
 
-    os.mkdir(CSV_DIR_PATH)
+    os.makedirs(CSV_DIR_PATH, exist_ok=True)
+    print(f'Created the following directory: {CSV_DIR_PATH}')
     write_lines(f'{CSV_DIR_PATH}/{VIDEO_NAME}.csv', full_csv_lines)
     write_lines(f'{CSV_DIR_PATH}/{VIDEO_NAME}_rh.csv', right_csv_lines)
     write_lines(f'{CSV_DIR_PATH}/{VIDEO_NAME}_lh.csv', left_csv_lines)
+
+    os.makedirs(MIDI_DIR_PATH, exist_ok=True)
+    print(f'Created the following directory: {MIDI_DIR_PATH}')
 
     # Parse the CSVs into a MIDI files, then save the parsed MIDI files
     with open(f"{MIDI_DIR_PATH}/{VIDEO_NAME}.mid", "wb") as output_file:
