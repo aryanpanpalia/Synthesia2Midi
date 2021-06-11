@@ -4,6 +4,7 @@ import json
 
 import cv2
 import matplotlib.pyplot as plt
+import numpy as np
 import py_midicsv as pm
 
 import frames2matrix
@@ -31,13 +32,22 @@ def show_frames(frame_dir, n_f):
             index += int(n_f / 128)
 
 
+def write_lines(file_name, lines):
+    # write lines to file
+    file = open(file_name, 'a')
+    for line in lines:
+        file.write(line)
+    file.close()
+
+
 if __name__ == '__main__':
     PROJECT_DIR = os.getcwd()
 
     VIDEO_NAME = 'Round Midnight'
     VIDEO_URL = 'https://www.youtube.com/watch?v=9p2kKIoF2xo'
 
-    num_frames, fps = youtube2frames.get_frames(video_url=VIDEO_URL, video_name=VIDEO_NAME, video_dir_path=f'./{VIDEO_NAME}')
+    num_frames, fps = youtube2frames.get_frames(video_url=VIDEO_URL, video_name=VIDEO_NAME,
+                                                video_dir_path=f'./{VIDEO_NAME}')
 
     show_frames(f"{PROJECT_DIR}/{VIDEO_NAME}/frames", num_frames)
 
@@ -65,7 +75,16 @@ if __name__ == '__main__':
         note_gap_length=note_gap_length
     ).convert()
 
-    matrix2csv.matrix_to_csv(left_hand, right_hand, VIDEO_NAME, fps)
+    os.mkdir(f'./{VIDEO_NAME}/arrays')
+    np.save(f'./{VIDEO_NAME}/arrays/left_hand.npy', left_hand)
+    np.save(f'./{VIDEO_NAME}/arrays/right_hand.npy', right_hand)
+
+    full_csv_lines, right_csv_lines, left_csv_lines = matrix2csv.matrix_to_csv(left_hand, right_hand, fps)
+
+    os.mkdir(f'./{VIDEO_NAME}/csvs')
+    write_lines(f'./{VIDEO_NAME}/csvs/{VIDEO_NAME}.csv', full_csv_lines)
+    write_lines(f'./{VIDEO_NAME}/csvs/{VIDEO_NAME}_rh.csv', right_csv_lines)
+    write_lines(f'./{VIDEO_NAME}/csvs/{VIDEO_NAME}_lh.csv', left_csv_lines)
 
     # Parse the CSVs into a MIDI files, then save the parsed MIDI files
     with open(f"{PROJECT_DIR}/{VIDEO_NAME}/{VIDEO_NAME}.mid", "wb") as output_file:

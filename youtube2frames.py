@@ -33,14 +33,14 @@ def get_frames(video_url, video_dir_path, video_name=None):
     if video_name is None:
         video_name = video.title
 
-    print('*' * 30)
+    print('*' * 60)
     for stream in video.streams.filter(mime_type="video/mp4").order_by('fps'):
         tag = repr(stream)[repr(stream).find("tag"):repr(stream).find("mime")]
         res = repr(stream)[repr(stream).find("res"):repr(stream).find("fps")]
         fps = repr(stream)[repr(stream).find("fps"):repr(stream).rfind("vcodec")]
         progressive = repr(stream)[repr(stream).find("pro"):repr(stream).rfind("type")]
         print(tag, res, fps, progressive)
-    print('*' * 30)
+    print('*' * 60)
     tag = int(input("Enter a tag to download: "))
 
     video = video.streams.get_by_itag(tag)

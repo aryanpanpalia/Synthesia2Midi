@@ -239,42 +239,4 @@ class Frames2MatrixConverter:
         left_hand = np.array(left_hand).reshape((self.number_of_frames, self.last_key_number))
         right_hand = np.array(right_hand).reshape((self.number_of_frames, self.last_key_number))
 
-        os.mkdir(f'./{self.name}/arrays')
-        np.save(f'./{self.name}/arrays/left_hand.npy', left_hand)
-        np.save(f'./{self.name}/arrays/right_hand.npy', right_hand)
-
-        def to_intervals(array):
-            in_intervals = []
-
-            for column_index in range(array.shape[1]):
-                col = array[:, column_index]
-                new = []
-                count = 1
-
-                for i in range(1, col.shape[0]):
-                    if col[i] == col[i - 1]:
-                        count += 1
-                        if i == col.shape[0] - 1:  # if on the last element of column. have to record now.
-                            new.append([col[i], count])
-                    else:
-                        new.append([col[i - 1], count])
-                        count = 1
-
-                in_intervals.append(new)
-
-            return in_intervals
-
-        def to_abs(array):
-            in_abs = []
-
-            for note in array:
-                new = []
-                time_count = 0
-                for occurrence in note:
-                    new.append([occurrence[0], time_count])
-                    time_count += occurrence[1]
-                in_abs.append(new)
-
-            return in_abs
-
-        return to_abs(to_intervals(left_hand)), to_abs(to_intervals(right_hand))
+        return right_hand, left_hand
