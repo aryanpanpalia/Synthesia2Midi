@@ -1,6 +1,6 @@
 def get_lines_from(hand, track_num, fps, ticks_per_ms):
     """
-    goes through a hand and converts its information into the form required for the csv file
+    goes through a hand array and converts its information into the form required for the csv file
     :param hand: a matrix that has the information of what is being played by a hand
     :param track_num: what track number to give this hand
     :param fps: frames per second of the video downloaded. Used to calculate the time at which a note should be played
