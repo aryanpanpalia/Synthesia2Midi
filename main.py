@@ -37,7 +37,7 @@ if __name__ == '__main__':
     VIDEO_NAME = 'Round Midnight'
     VIDEO_URL = 'https://www.youtube.com/watch?v=9p2kKIoF2xo'
 
-    num_frames, fps = youtube2frames.get_frames(video_url=VIDEO_URL, video_name=VIDEO_NAME)
+    num_frames, fps = youtube2frames.get_frames(video_url=VIDEO_URL, video_name=VIDEO_NAME, video_dir_path=f'./{VIDEO_NAME}')
 
     show_frames(f"{PROJECT_DIR}/{VIDEO_NAME}/frames", num_frames)
 
