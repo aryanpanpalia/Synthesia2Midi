@@ -64,8 +64,8 @@ def get_lines_from(hand, track_num, fps, ticks_per_ms):
 
 def matrix_to_csv(left_hand_array, right_hand_array, fps):
     # constants used to calculate timing
-    PPQ = 1800
-    BPM = 100
+    PPQ = 1800  # clock pulses per quarter note
+    BPM = 100  # quarter notes per minute
     TEMPO = int(60000000 / BPM)
     ticks_per_ms = (BPM * PPQ) / 60000
 

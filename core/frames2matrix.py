@@ -1,5 +1,4 @@
 import concurrent.futures
-import os
 import sys
 
 import cv2
