@@ -136,3 +136,6 @@ testing.py
 testing_gui.py
 notes.txt
 profiler.png
+
+# Ignore .idea
+.idea/
