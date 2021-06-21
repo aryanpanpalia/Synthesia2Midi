@@ -42,7 +42,7 @@ def write_lines(file_name, lines):
 
 
 def prompt(variable_name: str, default):
-    value = input(f"[Default: \"{default}\"] Enter the {variable_name.replace('_', ' ')}: ")
+    value = input(f"[Default: {default}] Enter the {variable_name.replace('_', ' ')}: ")
     if value.strip() == '':
         value = default
 
@@ -53,15 +53,14 @@ def partial_convert(
         video_name=None,
         video_url=None,
         tag=None,
-        white_note_threshold=None,
-        white_key_height=None,
-        black_key_height=None,
-        clear_frame_number=None,
+        first_note=None,
+        first_white_note_col=None,
+        tenth_white_note_col=None,
         read_height=None,
         left_hand_color=None,
         right_hand_color=None,
         background_color=None,
-        note_gap_length=None,
+        minimum_note_width=None,
         video_dir_path=None,
         frame_dir_path=None,
         array_dir_path=None,
@@ -94,24 +93,21 @@ def partial_convert(
         tag=tag
     )
 
-    if None in [white_note_threshold, white_key_height, black_key_height, clear_frame_number, read_height,
-                left_hand_color, right_hand_color, background_color, note_gap_length]:
+    if None in [first_note, first_white_note_col, tenth_white_note_col, read_height,
+                left_hand_color, right_hand_color, background_color, minimum_note_width]:
         show_frames(frame_dir_path, num_frames)
 
-    if white_note_threshold is None:
-        prompt('white_note_threshold', 240)
+    if first_note is None:
+        first_note = prompt('first_note (capital)', 'A')
 
-    if white_key_height is None:
-        white_key_height = int(input("[No default] Enter the white key height: "))
+    if first_white_note_col is None:
+        first_white_note_col = float(input("[No default] Enter the first white note column: "))
 
-    if black_key_height is None:
-        black_key_height = int(input("[No default] Enter the black key height: "))
-
-    if clear_frame_number is None:
-        clear_frame_number = int(input("Enter a clear frame number: "))
+    if tenth_white_note_col is None:
+        tenth_white_note_col = float(input("[No default] Enter the tenth white note column: "))
 
     if read_height is None:
-        prompt('read_height', 10)
+        read_height = prompt('read_height', 50)
 
     if left_hand_color is None:
         left_hand_color = json.loads(input("Enter the left hand note's color in [R, G, B]: "))
@@ -119,25 +115,24 @@ def partial_convert(
     if right_hand_color is None:
         right_hand_color = json.loads(input("Enter the right hand note's color in [R, G, B]: "))
 
-    if black_key_height is None:
-        black_key_height = prompt('black_key_height', [33, 33, 33])
+    if background_color is None:
+        background_color = json.loads(input("Enter the background color in [R, G, B]: "))
 
-    if note_gap_length is None:
-        note_gap_length = int(input("Enter the note gap length: "))
+    if minimum_note_width is None:
+        minimum_note_width = int(input("Enter the minimum note width: "))
 
     left_hand, right_hand = frames2matrix.Frames2MatrixConverter(
         name=video_name,
         frame_dir=frame_dir_path,
-        clear_frame_number=clear_frame_number,
         num_frames=num_frames,
-        black_key_height=black_key_height,
-        white_key_height=white_key_height,
         read_height=read_height,
+        first_note=first_note,
+        first_white_note_col=first_white_note_col,
+        tenth_white_note_col=tenth_white_note_col,
         left_hand_color=left_hand_color,
         right_hand_color=right_hand_color,
         background_color=background_color,
-        white_note_threshold=white_note_threshold,
-        note_gap_length=note_gap_length
+        minimum_note_width=minimum_note_width
     ).convert()
 
     if array_dir_path is None:
