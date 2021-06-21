@@ -107,7 +107,7 @@ def partial_convert(
         tenth_white_note_col = float(input("[No default] Enter the tenth white note column: "))
 
     if read_height is None:
-        read_height = prompt('read_height', 50)
+        read_height = int(prompt('read_height', 50))
 
     if left_hand_color is None:
         left_hand_color = json.loads(input("Enter the left hand note's color in [R, G, B]: "))
