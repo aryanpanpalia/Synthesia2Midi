@@ -163,7 +163,6 @@ class Frames2MatrixConverter:
                 mid_pixel = relevant_part_of_img[mid]
 
                 # means that the last pixel was on the top/bottom row of a note so skip it
-                # TODO make sure that the above and below note width is greater than minimum note width
                 above_last_note = self.get_hand(image[self.read_height - 1][mid])
                 below_last_note = self.get_hand(image[self.read_height + 1][mid])
                 if above_last_note == 0 or below_last_note == 0:
