@@ -21,15 +21,14 @@ def full_convert(
         video_name,
         video_url,
         tag,
-        white_note_threshold,
-        white_key_height,
-        black_key_height,
-        clear_frame_number,
+        first_note,
+        first_white_note_col,
+        tenth_white_note_col,
         read_height,
         left_hand_color,
         right_hand_color,
         background_color,
-        note_gap_length,
+        minimum_note_width,
         video_dir_path=None,
         frame_dir_path=None,
         array_dir_path=None,
@@ -62,16 +61,15 @@ def full_convert(
     left_hand, right_hand = frames2matrix.Frames2MatrixConverter(
         name=video_name,
         frame_dir=frame_dir_path,
-        clear_frame_number=clear_frame_number,
         num_frames=num_frames,
-        black_key_height=black_key_height,
-        white_key_height=white_key_height,
         read_height=read_height,
+        first_note=first_note,
+        first_white_note_col=first_white_note_col,
+        tenth_white_note_col=tenth_white_note_col,
         left_hand_color=left_hand_color,
         right_hand_color=right_hand_color,
         background_color=background_color,
-        white_note_threshold=white_note_threshold,
-        note_gap_length=note_gap_length
+        minimum_note_width=minimum_note_width
     ).convert()
 
     os.makedirs(array_dir_path, exist_ok=True)

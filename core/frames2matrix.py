@@ -7,34 +7,32 @@ from tqdm import tqdm
 
 
 class Frames2MatrixConverter:
-    def __init__(self, name, frame_dir, clear_frame_number, num_frames, black_key_height, white_key_height, read_height,
-                 left_hand_color, right_hand_color, white_note_threshold, background_color, note_gap_length):
+    def __init__(self, name, frame_dir, num_frames, read_height, first_note, first_white_note_col, tenth_white_note_col,
+                 left_hand_color, right_hand_color, background_color, minimum_note_width):
         """
         :param name: name of the song
         :param frame_dir: the directory the frames are in
-        :param clear_frame_number: the frame number of a frame that has no notes colored/pressed/obstructed
         :param num_frames: the number of frames
-        :param black_key_height: height of black keys
-        :param white_key_height: height where no black keys
         :param read_height: the height from which to read notes
+        :param first_note: the letter value of the first note (must be capital)
+        :param first_white_note_col: column of the first white note
+        :param tenth_white_note_col: column on the tenth white note
         :param left_hand_color: the color of the notes in the left hand
         :param right_hand_color: the color of the notes in the right hand
-        :param white_note_threshold: the minimum pixel brightness that should correspond to a white note
         :param background_color: background color
-        :param note_gap_length: maximum gap between white notes accounted for. If the gap is too large, notes can be
+        :param minimum_note_width: maximum gap between white notes accounted for. If the gap is too large, notes can be
                                 skipped as they are perceived as being a note gap instead of an actual note. If the gap
                                 is too small, it will think of some note gaps as actual notes.
         """
 
         self.name = name
-        self.white_note_threshold = white_note_threshold
         self.frame_dir = frame_dir
-        self.clear_frame = cv2.imread(f"{self.frame_dir}/frame_{clear_frame_number}.jpg", cv2.IMREAD_GRAYSCALE)
-        self.black_key_height = black_key_height
-        self.white_key_height = white_key_height
         self.read_height = read_height
-        self.note_gap_length = note_gap_length
+        self.minimum_note_width = minimum_note_width
         self.number_of_frames = num_frames
+        self.first_note_value = ord(first_note) - 65  # A->0, B->1, etc...
+        self.first_white_note_col = first_white_note_col
+        self.tenth_white_note_col = tenth_white_note_col
 
         self.left_hand_color = np.array(left_hand_color, dtype=np.uint8).reshape((1, 1, 3))
         self.right_hand_color = np.array(right_hand_color, dtype=np.uint8).reshape((1, 1, 3))
@@ -52,72 +50,39 @@ class Frames2MatrixConverter:
         creates a dictionary that maps the middle of all the keys to what note number they are
         :return: a dictionary that maps the middle of all the keys to what note number they are
         """
+        distance_between_white_notes = (self.tenth_white_note_col - self.first_white_note_col) / 9
+        white_note_columns = [
+            self.first_white_note_col + distance_between_white_notes * counter for counter in range(60)
+        ]
+        note_columns = []
 
-        def is_white(color):
-            return color > self.white_note_threshold
+        for counter in range(1, len(white_note_columns)):
+            last_white_note_col = white_note_columns[counter - 1]
+            this_white_note_col = white_note_columns[counter]
 
-        black_note_row = self.clear_frame[self.black_key_height:self.black_key_height + 1, :]
-        black_note_row = np.array(
-            [255 if is_white(black_note_row[0, i]) else 0 for i in range(black_note_row.shape[1])]
-        )
+            note_columns.append(last_white_note_col)
 
-        column2note = {}
-
-        on_note = 0
-        note_start = 0
-
-        # only records black notes
-        for i in range(black_note_row.shape[0]):
-            last_note = black_note_row[i - 1]
-            this_note = black_note_row[i]
-
-            if np.abs(this_note - last_note) > 0:
-                if i - note_start < self.note_gap_length:
-                    note_start = i
+            if counter % 7 not in [(2 - self.first_note_value) % 7, (5 - self.first_note_value) % 7]:
+                # if the current white note is B or E
+                # (the black note is closer to this white note than the last white note)
+                if (self.first_note_value + counter) % 7 in [1 - self.first_note_value, 4 - self.first_note_value]:
+                    approx_black_note_col = (last_white_note_col + 2 * this_white_note_col) / 3
+                # if the current white note is D or G
+                # (the black note is closer to the last white note than this white note)
+                elif (self.first_note_value + counter) % 7 in [2 - self.first_note_value, 6 - self.first_note_value]:
+                    approx_black_note_col = (2 * last_white_note_col + this_white_note_col) / 3
                 else:
-                    mid = (i - note_start) / 2 + note_start
+                    approx_black_note_col = (last_white_note_col + this_white_note_col) / 2
 
-                    # if its black, the color at the mid value will be black
-                    if black_note_row[int(mid)] == 0:
-                        column2note[mid] = on_note
+                note_columns.append(approx_black_note_col)
 
-                    # will increment note whether or not the last note was black
-                    note_start = i
-                    on_note += 1
+        column2note = {note_col: note_num for note_num, note_col in enumerate(note_columns)}
 
-        white_note_row = self.clear_frame[self.white_key_height:self.white_key_height + 1, :]
-        white_note_row = np.array(
-            [255 if is_white(white_note_row[0, i]) else 0 for i in range(white_note_row.shape[1])]
-        )
-
-        for i in range(white_note_row.shape[0]):
-            last_note = white_note_row[i - 1]
-            this_note = white_note_row[i]
-
-            if np.abs(this_note - last_note) > 0:
-                if i - note_start < self.note_gap_length:
-                    note_start = i + 1
-                else:
-                    used_notes = list(column2note.values())
-
-                    for integer in range(88):
-                        if integer not in used_notes:
-                            on_note = integer
-                            break
-
-                    mid = (i - note_start) / 2 + note_start
-
-                    # if its white, the color at the mid value will be white
-                    if white_note_row[int(mid)] == 255:
-                        column2note[mid] = on_note
-
-                    note_start = i + 1
-
-        column2note = {key: column2note[key] for key in sorted(column2note)}
         return column2note
 
     def get_note(self, pixel_col):
         """
+        given a column, returns the note number of the note played at that column
         :param pixel_col: the column on the image
         :return: the note the pixel_col corresponds to (numerically)
         """
@@ -192,12 +157,13 @@ class Frames2MatrixConverter:
 
             # This is where a note ends. Need to calculate middle of the note to find out what note it actually is.
             # i - notestart > x makes sure that one random pixel being on doesn't cause program to think a note is there
-            if last_pixel != 0 and this_pixel != last_pixel and i - note_start > self.note_gap_length:
+            if last_pixel != 0 and this_pixel != last_pixel and i - note_start > self.minimum_note_width:
                 mid = int(note_start + (i - note_start) / 2)
                 note = self.get_note(mid)
                 mid_pixel = relevant_part_of_img[mid]
 
                 # means that the last pixel was on the top/bottom row of a note so skip it
+                # TODO make sure that the above and below note width is greater than minimum note width
                 above_last_note = self.get_hand(image[self.read_height - 1][mid])
                 below_last_note = self.get_hand(image[self.read_height + 1][mid])
                 if above_last_note == 0 or below_last_note == 0:
